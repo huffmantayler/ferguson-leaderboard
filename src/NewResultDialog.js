@@ -46,6 +46,7 @@ const NewResultDialog = (props) => {
         set(newTeamRef, {
             team: team,
             score: Number(newScore),
+            date: Date.now(),
         });
         props.onClose();
     }

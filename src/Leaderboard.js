@@ -20,7 +20,7 @@ import {
 } from "firebase/database";
 import { useSelector } from "react-redux";
 import EditResultDialog from "./EditResultDialog";
-import { Delete } from "@mui/icons-material";
+import dayjs from "dayjs";
 import DeleteDialog from "./DeleteDialog";
 
 const Leaderboard = (props) => {
@@ -94,7 +94,12 @@ const Leaderboard = (props) => {
     const sortTeamsByScore = (teams) => {
         const teamsArr = [];
         for (const key in teams) {
-            teamsArr.push([teams[key].team, Number(teams[key].score), key]);
+            teamsArr.push([
+                teams[key].team,
+                Number(teams[key].score),
+                key,
+                teams[key].date === undefined ? null : teams[key].date,
+            ]);
         }
         const sortedTeams = teamsArr.sort((a, b) => {
             return b[1] - a[1];
@@ -105,12 +110,23 @@ const Leaderboard = (props) => {
     const sortTeamsByTime = (teams) => {
         const teamsArr = [];
         for (const key in teams) {
-            teamsArr.push([teams[key].team, Number(teams[key].score), key]);
+            console.log(teams[key].team, teams[key].date);
+            teamsArr.push([
+                teams[key].team,
+                Number(teams[key].score),
+                key,
+                teams[key].date === undefined ? null : teams[key].date,
+            ]);
         }
         const sortedTeams = teamsArr.sort((a, b) => {
             return a[1] - b[1];
         });
         return sortedTeams;
+    };
+
+    const createDate = (epoch) => {
+        let date = dayjs(epoch);
+        return date.format("MM/DD/YY");
     };
 
     function createTableRows(teams, type) {
@@ -135,17 +151,18 @@ const Leaderboard = (props) => {
         sortedTeams.forEach((team) => {
             tableRows.push(
                 <TableRow>
-                    <TableCell>{i}</TableCell>
+                    <TableCell width={"20%"}>{i}</TableCell>
                     <TableCell>{team[0]}</TableCell>
-                    {/* <TableCell>Rank</TableCell> */}
-                    <TableCell>
+                    <TableCell width={"10%"}>
                         {challengeType === "Time"
                             ? secondsToMinutes(team[1])
                             : team[1]}
                     </TableCell>
-
+                    <TableCell>
+                        {team[3] === null ? "" : createDate(team[3])}
+                    </TableCell>
                     {loggedIn && (
-                        <TableCell>
+                        <TableCell width={"5%"}>
                             <IconButton
                                 onClick={() => {
                                     setEditTeam(team);
@@ -198,7 +215,8 @@ const Leaderboard = (props) => {
                             <TableCell>Team</TableCell>
                             {/* <TableCell>Category Rank</TableCell> */}
                             <TableCell>Score</TableCell>
-                            <TableCell></TableCell>
+                            <TableCell>Date</TableCell>
+                            {loggedIn && <TableCell></TableCell>}
                         </TableRow>
                     </TableHead>
                     {props.type === "Male" && maleData}
