@@ -18,6 +18,7 @@ import { getAuth, signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getDatabase, ref, remove } from "firebase/database";
+import ArchivedChallengesDialog from "./ArchivedChallengesDialog";
 
 const Layout = ({ children }) => {
     const [resultDialogOpen, setResultDialogOpen] = useState(false);
@@ -33,6 +34,8 @@ const Layout = ({ children }) => {
     const [accOpen, setAccOpen] = useState(false);
     const currentChallenge = useSelector((state) => state.currentChallenge);
     const db = getDatabase();
+    const [archivedChallgedDialogOpen, setArchivedChallengeDialogOpen] =
+        useState(false);
 
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -176,14 +179,25 @@ const Layout = ({ children }) => {
                                     </MenuItem>
                                 )}
                                 {loggedIn && (
-                                    <MenuItem
-                                        onClick={() => {
-                                            firebaseSignout();
-                                            handleAccountClose();
-                                        }}
-                                    >
-                                        Log out
-                                    </MenuItem>
+                                    <div>
+                                        <MenuItem
+                                            onClick={() =>
+                                                setArchivedChallengeDialogOpen(
+                                                    true
+                                                )
+                                            }
+                                        >
+                                            View Archived Challenges
+                                        </MenuItem>
+                                        <MenuItem
+                                            onClick={() => {
+                                                firebaseSignout();
+                                                handleAccountClose();
+                                            }}
+                                        >
+                                            Log out
+                                        </MenuItem>
+                                    </div>
                                 )}
                             </Menu>
                         </IconButton>
@@ -215,6 +229,10 @@ const Layout = ({ children }) => {
                     </Button>
                 </DialogActions>
             </Dialog>
+            <ArchivedChallengesDialog
+                archivedChallgedDialogOpen={archivedChallgedDialogOpen}
+                setArchivedChallengeDialogOpen={setArchivedChallengeDialogOpen}
+            />
         </div>
     );
 };

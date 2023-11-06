@@ -33,10 +33,19 @@ export const BoardSelector = (props) => {
         onValue(challengeRef, (snapshot) => {
             const challenges = snapshot.val();
             for (const key in challenges) {
-                challengeList.push([
-                    key.replace(/_/g, " "),
-                    challenges[key]["type"],
-                ]);
+                let date = new Date(challenges[key]["timeStamp"]);
+                let now = new Date();
+                let y1 = date.getFullYear();
+                let y2 = now.getFullYear();
+                let d1 = new Date(date).setFullYear(2000);
+                let d2 = new Date(now).setFullYear(2000);
+                let oneYearOrOlder = y2 - y1 > 1 || (y2 - y1 == 1 && d2 > d1);
+                if (!oneYearOrOlder) {
+                    challengeList.push([
+                        key.replace(/_/g, " "),
+                        challenges[key]["type"],
+                    ]);
+                }
             }
             dispatch({ type: "setChallengeMap", payload: challengeList });
         });
