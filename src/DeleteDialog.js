@@ -2,38 +2,21 @@ import {
     Dialog,
     DialogTitle,
     Button,
-    TextField,
-    FormControlLabel,
-    MenuItem,
-    Select,
     DialogActions,
     DialogContent,
     Typography,
 } from "@mui/material";
 import { useEffect } from "react";
-import { TimePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 import { useState } from "react";
-import {
-    getDatabase,
-    ref,
-    set,
-    push,
-    onValue,
-    update,
-    remove,
-} from "firebase/database";
-import { useDispatch, useSelector } from "react-redux";
-import dayjs from "dayjs";
+import { getDatabase, ref, remove } from "firebase/database";
+import { useSelector } from "react-redux";
 
 const DeleteDialog = (props) => {
     const [challenge, setChallenge] = useState();
     const db = getDatabase();
-    const challengeMap = useSelector((state) => state.challengeMap);
     const selectedChallenge = useSelector((state) => state.selectedChallenge);
     const currentChallenge = useSelector((state) => state.currentChallenge);
-    const [challengeType, setChallengeType] = useState();
     const [teamId, setTeamId] = useState();
     const { open, onClose, deleteTeam, teamType } = props;
 
@@ -48,9 +31,6 @@ const DeleteDialog = (props) => {
 
     function deleteTeamResults(e) {
         e.preventDefault();
-
-        console.log(teamId);
-
         const teamListRef = ref(
             db,
             "Challenges/" +
@@ -60,7 +40,6 @@ const DeleteDialog = (props) => {
                 "/" +
                 teamId
         );
-        console.log(teamListRef);
         remove(teamListRef);
         props.onClose();
     }

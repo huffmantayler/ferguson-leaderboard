@@ -7,20 +7,22 @@ import {
     Menu,
     MenuItem,
     Toolbar,
-    Select,
+    DialogActions,
+    Button,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import NewResultDialog from "./NewResultDialog";
 import NewChallengeDialog from "./NewChallengeDialog";
 import { BoardSelector } from "./BoardSelector";
-import Main from "./pages/Main";
 import { getAuth, signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { getDatabase, ref, remove } from "firebase/database";
 
 const Layout = ({ children }) => {
     const [resultDialogOpen, setResultDialogOpen] = useState(false);
     const [challengeDialogOpen, setChallengeDialogOpen] = useState(false);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
     const [accountEl, setAccountEl] = useState(null);
     const dispatch = useDispatch();
@@ -29,6 +31,8 @@ const Layout = ({ children }) => {
     const isLoginScreen = useSelector((state) => state.isLoginScreen);
     const open = Boolean(anchorEl);
     const [accOpen, setAccOpen] = useState(false);
+    const currentChallenge = useSelector((state) => state.currentChallenge);
+    const db = getDatabase();
 
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -66,6 +70,16 @@ const Layout = ({ children }) => {
                 console.log(error);
             });
     };
+
+    function deleteChallenge(e) {
+        e.preventDefault();
+        const challengeRef = ref(
+            db,
+            "Challenges/" + currentChallenge.replace(/ /g, "_") + "/"
+        );
+        remove(challengeRef);
+        setDeleteDialogOpen(false);
+    }
 
     useEffect(() => {
         const loggedInUser = localStorage.getItem("user");
@@ -113,12 +127,18 @@ const Layout = ({ children }) => {
                         </MenuItem>
                         <MenuItem
                             onClick={() => {
-                                console.log(challengeDialogOpen);
                                 setChallengeDialogOpen(true);
                                 handleClose();
                             }}
                         >
                             Create a new challenge
+                        </MenuItem>
+                        <MenuItem
+                            onClick={() => {
+                                setDeleteDialogOpen(true);
+                            }}
+                        >
+                            Delete current challenge
                         </MenuItem>
                     </Menu>
                     {!isLoginScreen && <BoardSelector></BoardSelector>}
@@ -178,6 +198,23 @@ const Layout = ({ children }) => {
                 open={challengeDialogOpen}
                 onClose={handleChallengeDialogClose}
             ></NewChallengeDialog>
+            <Dialog open={deleteDialogOpen}>
+                <DialogTitle>
+                    Are you sure you want to delete {currentChallenge}?
+                </DialogTitle>
+                <DialogActions>
+                    <Button
+                        variant='contained'
+                        color='error'
+                        onClick={(e) => deleteChallenge(e)}
+                    >
+                        Delete
+                    </Button>
+                    <Button onClick={() => setDeleteDialogOpen(false)}>
+                        Cancel
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </div>
     );
 };

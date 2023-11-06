@@ -18,7 +18,6 @@ const reducer = (state = initialState, action) => {
                 selectedChallenge: action.payload,
             };
         case "setCurrentChallenge":
-            console.log(action);
             return {
                 ...state,
                 currentChallenge: action.payload,
@@ -34,7 +33,6 @@ const reducer = (state = initialState, action) => {
                 newResultChallengeType: action.payload,
             };
         case "setChallengeMap":
-            console.log(action);
             const existsInArray = state.challengeMap.some(
                 (chal) => chal.name === action.payload.name
             );
