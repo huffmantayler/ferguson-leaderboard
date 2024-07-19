@@ -6,7 +6,6 @@ import {
     TableContainer,
     TableHead,
     IconButton,
-    Tooltip,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -23,7 +22,6 @@ import { useSelector } from "react-redux";
 import EditResultDialog from "./EditResultDialog";
 import dayjs from "dayjs";
 import DeleteDialog from "./DeleteDialog";
-import NotesDialog from "./NotesDialog";
 
 const Leaderboard = (props) => {
     const [maleData, setMaleData] = useState("");
@@ -38,18 +36,16 @@ const Leaderboard = (props) => {
     //const challengeType = useSelector((state) => state.challengeType);
     const challengeMap = useSelector((state) => state.challengeMap);
     const loggedIn = useSelector((state) => state.loggedIn);
-    const [notesDialogOpen, setNotesDialogOpen] = useState(false);
-    const [currentNotes, setCurrentNotes] = useState("");
 
     const db = getDatabase();
 
     useEffect(() => {
-        //if (selectedChallenge != null) {
-        setChallenge(selectedChallenge);
-        // } else if (currentChallenge != null) {
-        //     setChallenge(currentChallenge);
-        // }
-    }, [selectedChallenge]);
+        if (selectedChallenge != null) {
+            setChallenge(selectedChallenge);
+        } else if (currentChallenge != null) {
+            setChallenge(currentChallenge);
+        }
+    }, [selectedChallenge, currentChallenge]);
 
     useEffect(() => {
         if (challenge != null) {
@@ -103,7 +99,6 @@ const Leaderboard = (props) => {
                 Number(teams[key].score),
                 key,
                 teams[key].date === undefined ? null : teams[key].date,
-                teams[key].notes,
             ]);
         }
         const sortedTeams = teamsArr.sort((a, b) => {
@@ -121,7 +116,6 @@ const Leaderboard = (props) => {
                 Number(teams[key].score),
                 key,
                 teams[key].date === undefined ? null : teams[key].date,
-                teams[key].notes,
             ]);
         }
         const sortedTeams = teamsArr.sort((a, b) => {
@@ -155,20 +149,10 @@ const Leaderboard = (props) => {
             sortedTeams = sortTeamsByScore(teams);
         }
         sortedTeams.forEach((team) => {
-            console.log(team);
             tableRows.push(
                 <TableRow>
                     <TableCell width={"20%"}>{i}</TableCell>
-                    <Tooltip title={team[4]}>
-                        <TableCell
-                            onClick={() => {
-                                setCurrentNotes(team[4]);
-                                setNotesDialogOpen(true);
-                            }}
-                        >
-                            {team[0]}
-                        </TableCell>
-                    </Tooltip>
+                    <TableCell>{team[0]}</TableCell>
                     <TableCell width={"10%"}>
                         {challengeType === "Time"
                             ? secondsToMinutes(team[1])
@@ -214,16 +198,11 @@ const Leaderboard = (props) => {
     }
 
     const handleClose = () => {
-        setCurrentNotes("");
         setEditResultsDialogOpen(false);
     };
 
     const handleDeleteClose = () => {
         setDeleteDialogOpen(false);
-    };
-
-    const handleNotesClose = () => {
-        setNotesDialogOpen(false);
     };
 
     return (
@@ -261,11 +240,6 @@ const Leaderboard = (props) => {
                     onClose={handleDeleteClose}
                 ></DeleteDialog>
             )}
-            <NotesDialog
-                value={currentNotes}
-                open={notesDialogOpen}
-                onClose={handleNotesClose}
-            ></NotesDialog>
         </div>
     );
 };
