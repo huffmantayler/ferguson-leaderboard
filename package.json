@@ -40,8 +40,9 @@
   },
   "scripts": {
     "start": "vite",
-    "build": "tsc && vite build",
-    "serve": "vite preview"
+    "build": "vite build",
+    "serve": "vite preview",
+    "deploy": "firebase deploy --project ferguson-leaderboard"
   },
   "eslintConfig": {
     "extends": [
