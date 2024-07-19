@@ -33,6 +33,7 @@ const Layout = ({ children }) => {
     const open = Boolean(anchorEl);
     const [accOpen, setAccOpen] = useState(false);
     const currentChallenge = useSelector((state) => state.currentChallenge);
+    const selectedChallenge = useSelector((state) => state.selectedChallenge);
     const db = getDatabase();
     const [archivedChallgedDialogOpen, setArchivedChallengeDialogOpen] =
         useState(false);
@@ -78,10 +79,11 @@ const Layout = ({ children }) => {
         e.preventDefault();
         const challengeRef = ref(
             db,
-            "Challenges/" + currentChallenge.replace(/ /g, "_") + "/"
+            "Challenges/" + selectedChallenge.replace(/ /g, "_") + "/"
         );
         remove(challengeRef);
         setDeleteDialogOpen(false);
+        window.location.reload();
     }
 
     useEffect(() => {
@@ -214,7 +216,7 @@ const Layout = ({ children }) => {
             ></NewChallengeDialog>
             <Dialog open={deleteDialogOpen}>
                 <DialogTitle>
-                    Are you sure you want to delete {currentChallenge}?
+                    Are you sure you want to delete {selectedChallenge}?
                 </DialogTitle>
                 <DialogActions>
                     <Button

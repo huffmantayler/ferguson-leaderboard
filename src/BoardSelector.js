@@ -52,6 +52,7 @@ export const BoardSelector = (props) => {
     };
 
     const updateSelectedChallenge = (e) => {
+        console.log(e.target.childNodes[0].data);
         dispatch({
             type: "setSelectedChallenge",
             payload: e.target.childNodes[0].data,

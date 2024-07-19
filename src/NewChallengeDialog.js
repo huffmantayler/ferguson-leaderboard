@@ -22,7 +22,7 @@ const NewChallengeDialog = (props) => {
     const dispatch = useDispatch();
 
     function writeNewChallengeToDB(e) {
-        e.preventDefault();
+        dispatch({ type: "setSelectedChallenge", payload: challenge });
         const db = getDatabase();
         const newChallengeRef = ref(
             db,

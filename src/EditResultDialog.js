@@ -11,6 +11,7 @@ import {
 import { useEffect } from "react";
 import { TimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import TextareaAutosize from "react-textarea-autosize";
 
 import { useState } from "react";
 import {
@@ -29,19 +30,23 @@ const EditResultDialog = (props) => {
     const [type, setType] = useState();
     const [team, setTeam] = useState();
     const [score, setScore] = useState();
+    const [notes, setNotes] = useState("");
     const db = getDatabase();
     const challengeMap = useSelector((state) => state.challengeMap);
     const selectedChallenge = useSelector((state) => state.selectedChallenge);
     const currentChallenge = useSelector((state) => state.currentChallenge);
     const [challengeType, setChallengeType] = useState();
     const [teamId, setTeamId] = useState();
+    const [date, setDate] = useState();
     const { open, onClose, editTeam, teamType } = props;
 
     useEffect(() => {
-        console.log(props.teamType);
+        console.log(editTeam);
         setTeam(editTeam[0]);
         setScore(editTeam[1]);
         setTeamId(editTeam[2]);
+        setDate(editTeam[3]);
+        setNotes(editTeam[4]);
         if (selectedChallenge != null) {
             setChallenge(selectedChallenge);
         } else if (currentChallenge != null) {
@@ -68,7 +73,6 @@ const EditResultDialog = (props) => {
 
     function updateTeamResults(e) {
         e.preventDefault();
-        console.log(teamType);
         let newScore = null;
 
         if (challengeType === "Time") {
@@ -90,6 +94,8 @@ const EditResultDialog = (props) => {
         set(teamListRef, {
             team: team,
             score: Number(newScore),
+            date,
+            notes,
         });
         props.onClose();
     }
@@ -108,6 +114,11 @@ const EditResultDialog = (props) => {
 
     const handleTypeChange = (event) => {
         setType(event.target.value);
+    };
+
+    const handleNotesChange = (event) => {
+        console.log(event.target.value);
+        setNotes(event.target.value);
     };
 
     const minutesToSeconds = (time) => {
@@ -188,6 +199,26 @@ const EditResultDialog = (props) => {
                         )
                     }
                 />
+                <FormControlLabel
+                    label='Notes: '
+                    labelPlacement='start'
+                    //onChange={(e) => handleNotesChange(e)}
+                    control={
+                        <TextareaAutosize
+                            style={{
+                                fontFamily: "sans-serif",
+                                marginLeft: "3.5rem",
+                                marginTop: "10px",
+                                minRows: 10,
+                                height: "100px",
+                                maxWidth: "175px",
+                            }}
+                            maxRows={10}
+                            value={notes}
+                            onChange={(e) => handleNotesChange(e)}
+                        />
+                    }
+                ></FormControlLabel>
                 <DialogActions>
                     <Button
                         sx={{ margin: "10px" }}

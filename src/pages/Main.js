@@ -25,8 +25,9 @@ const Main = () => {
             setChallenge(selectedChallenge);
         }
     }, [selectedChallenge]);
-
+    //selected challenge not updating main correctly
     const getCurrentChallenges = (e) => {
+        console.log(selectedChallenge);
         const challengeRef = query(
             ref(db, "Challenges/"),
             orderByChild("timeStamp"),
@@ -40,12 +41,16 @@ const Main = () => {
                 type: "setCurrentChallenge",
                 payload: challengeName.replace(/_/g, " "),
             });
+            dispatch({
+                type: "setSelectedChallenge",
+                payload: challengeName.replace(/_/g, " "),
+            });
         });
     };
 
     return (
         <Grid container justifyContent={"center"} sx={{ paddingTop: "10px" }}>
-            <Typography variant='h4'>{challenge}</Typography>
+            <Typography variant='h4'>{selectedChallenge}</Typography>
 
             <Grid
                 sx={{ padding: "2rem" }}
@@ -55,19 +60,19 @@ const Main = () => {
             >
                 <Grid item lg={16}>
                     <Leaderboard
-                        challenge={challenge}
+                        challenge={selectedChallenge}
                         type={"Male"}
                     ></Leaderboard>
                 </Grid>
                 <Grid item lg={16}>
                     <Leaderboard
-                        challenge={challenge}
+                        challenge={selectedChallenge}
                         type={"Female"}
                     ></Leaderboard>
                 </Grid>
                 <Grid item lg={16}>
                     <Leaderboard
-                        challenge={challenge}
+                        challenge={selectedChallenge}
                         type={"Co-ed"}
                     ></Leaderboard>
                 </Grid>

@@ -14,12 +14,14 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { useState } from "react";
 import { getDatabase, ref, set, push, onValue } from "firebase/database";
 import { useDispatch, useSelector } from "react-redux";
+import TextareaAutosize from "react-textarea-autosize";
 
 const NewResultDialog = (props) => {
     const [challenge, setChallenge] = useState();
     const [type, setType] = useState();
     const [team, setTeam] = useState();
     const [score, setScore] = useState();
+    const [notes, setNotes] = useState("");
     const [invalid, setInvalid] = useState(false);
     const dispatch = useDispatch();
     const db = getDatabase();
@@ -46,6 +48,7 @@ const NewResultDialog = (props) => {
         set(newTeamRef, {
             team: team,
             score: Number(newScore),
+            notes: notes,
             date: Date.now(),
         });
         props.onClose();
@@ -69,6 +72,10 @@ const NewResultDialog = (props) => {
 
     const handleTypeChange = (event) => {
         setType(event.target.value);
+    };
+
+    const handleNotesChange = (event) => {
+        setNotes(event.target.value);
     };
 
     const minutesToSeconds = (time) => {
@@ -152,7 +159,7 @@ const NewResultDialog = (props) => {
                     control={
                         <TextField
                             size='small'
-                            style={{ marginLeft: "10px" }}
+                            style={{ marginLeft: "10px", width: "175px" }}
                         ></TextField>
                     }
                 />
@@ -166,6 +173,7 @@ const NewResultDialog = (props) => {
                                 <TimePicker
                                     sx={{
                                         marginLeft: "54px",
+                                        width: "175px",
                                     }}
                                     onChange={(e) => handleScoreChange(e)}
                                     views={["minutes", "seconds"]}
@@ -176,11 +184,31 @@ const NewResultDialog = (props) => {
                             <TextField
                                 size='small'
                                 type='number'
-                                style={{ marginLeft: "54px" }}
+                                style={{ marginLeft: "54px", width: "175px" }}
                             ></TextField>
                         )
                     }
                 />
+                <FormControlLabel
+                    label='Notes: '
+                    labelPlacement='start'
+                    //onChange={(e) => handleNotesChange(e)}
+                    control={
+                        <TextareaAutosize
+                            style={{
+                                fontFamily: "sans-serif",
+                                marginLeft: "3.5rem",
+                                marginTop: "10px",
+                                minRows: 10,
+                                height: "100px",
+                                maxWidth: "175px",
+                            }}
+                            maxRows={10}
+                            onChange={(e) => handleNotesChange(e)}
+                        />
+                    }
+                ></FormControlLabel>
+
                 <DialogActions>
                     <Button
                         sx={{ margin: "10px" }}
