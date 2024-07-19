@@ -19,6 +19,8 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getDatabase, ref, remove } from "firebase/database";
 import ArchivedChallengesDialog from "./ArchivedChallengesDialog";
+import LightModeIcon from '@mui/icons-material/LightMode';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
 
 const Layout = ({ children }) => {
     const [resultDialogOpen, setResultDialogOpen] = useState(false);
@@ -36,6 +38,7 @@ const Layout = ({ children }) => {
     const db = getDatabase();
     const [archivedChallgedDialogOpen, setArchivedChallengeDialogOpen] =
         useState(false);
+    const darkMode = useSelector((state) => state.darkMode)
 
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -146,6 +149,12 @@ const Layout = ({ children }) => {
                     </Menu>
                     {!isLoginScreen && <BoardSelector></BoardSelector>}
                     {!isLoginScreen && (
+                        <div style={{mr: 2, marginLeft: "auto"}}>
+                        <IconButton onClick={() =>{
+                            dispatch({type: "set/darkMode"})
+                        }}>
+                       {darkMode ? <LightModeIcon/> : <DarkModeIcon sx={{color: "white"}}/>}
+                        </IconButton>
                         <IconButton
                             size='large'
                             edge='start'
@@ -201,6 +210,7 @@ const Layout = ({ children }) => {
                                 )}
                             </Menu>
                         </IconButton>
+                        </div>
                     )}
                 </Toolbar>
             </AppBar>
