@@ -40,6 +40,10 @@ const Leaderboard = (props) => {
     const loggedIn = useSelector((state) => state.loggedIn);
     const [notesDialogOpen, setNotesDialogOpen] = useState(false);
     const [currentNotes, setCurrentNotes] = useState("");
+    const [teamKey, setTeamKey] = useState();
+    const [type, setType] = useState();
+    const [team, setTeam] = useState();
+    const [teamData, setTeamData] = useState(null)
 
     const db = getDatabase();
 
@@ -103,6 +107,7 @@ const Leaderboard = (props) => {
                 Number(teams[key].score),
                 key,
                 teams[key].date === undefined ? null : teams[key].date,
+                teams[key].notes,
             ]);
         }
         const sortedTeams = teamsArr.sort((a, b) => {
@@ -114,7 +119,7 @@ const Leaderboard = (props) => {
     const sortTeamsByTime = (teams) => {
         const teamsArr = [];
         for (const key in teams) {
-            console.log(teams[key].team, teams[key].date);
+            // console.log(teams[key].team, teams[key].date);
             teamsArr.push([
                 teams[key].team,
                 Number(teams[key].score),
@@ -158,8 +163,14 @@ const Leaderboard = (props) => {
                 <TableRow>
                     <TableCell width={"20%"}>{i}</TableCell>
                     <TableCell onClick={() => {
-                                setCurrentNotes(team[4]);
-                                console.log(team)
+                                setTeamData({
+                                    team: team[0],
+                                    teamType: type,
+                                    key: team[2],
+                                    score: team[1],
+                                    date: team[3],
+                                    currentNotes: team[4],
+                                })
                                 setNotesDialogOpen(true);
                             }}>{team[0]}</TableCell>
                     <TableCell width={"10%"}>
@@ -255,9 +266,13 @@ const Leaderboard = (props) => {
                 ></DeleteDialog>
             )}
             <NotesDialog
-                value={currentNotes}
+                teamData={teamData}
+                // currentNotes={currentNotes}
+                // team={team}
+                // teamKey={teamKey}
+                // type={type}
                 open={notesDialogOpen}
-                onClose={handleNotesClose}
+                handleNotesClose={handleNotesClose}
             ></NotesDialog>
         </div>
     );
