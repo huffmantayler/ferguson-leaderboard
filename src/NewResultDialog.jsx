@@ -8,70 +8,30 @@ import {
     Select,
     DialogActions,
 } from "@mui/material";
-import { useEffect } from "react";
 import { TimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import TextareaAutosize from "react-textarea-autosize";
 
 import { useState } from "react";
-import {
-    getDatabase,
-    ref,
-    set,
-    push,
-    onValue,
-    update,
-} from "firebase/database";
+import { getDatabase, ref, set, push, onValue } from "firebase/database";
 import { useDispatch, useSelector } from "react-redux";
-import dayjs from "dayjs";
+import TextareaAutosize from "react-textarea-autosize";
 
-const EditResultDialog = (props) => {
+const NewResultDialog = (props) => {
     const [challenge, setChallenge] = useState();
     const [type, setType] = useState();
     const [team, setTeam] = useState();
     const [score, setScore] = useState();
     const [notes, setNotes] = useState("");
+    const [invalid, setInvalid] = useState(false);
+    const dispatch = useDispatch();
     const db = getDatabase();
-    const challengeMap = useSelector((state) => state.challengeMap);
-    const selectedChallenge = useSelector((state) => state.selectedChallenge);
-    const currentChallenge = useSelector((state) => state.currentChallenge);
-    const [challengeType, setChallengeType] = useState();
-    const [teamId, setTeamId] = useState();
-    const [date, setDate] = useState();
-    const { open, onClose, editTeam, teamType } = props;
+    const challengeType = useSelector((state) => state.newResultChallengeType);
 
-    useEffect(() => {
-        console.log(editTeam);
-        setTeam(editTeam[0]);
-        setScore(editTeam[1]);
-        setTeamId(editTeam[2]);
-        setDate(editTeam[3]);
-        setNotes(editTeam[4]);
-        if (selectedChallenge != null) {
-            setChallenge(selectedChallenge);
-        } else if (currentChallenge != null) {
-            setChallenge(currentChallenge);
-        }
-    }, []);
-
-    useEffect(() => {
-        let chalType = null;
-        challengeMap.forEach((chal) => {
-            if (chal[0] === challenge) {
-                chalType = chal[1];
-            }
+    function writeTeamResultData(e) {
+        dispatch({
+            type: "setSelectedChallenge",
+            payload: challenge.replace(/_/g, " "),
         });
-        if (chalType === null) {
-            setChallengeType(challengeMap[selectedChallenge]);
-        } else {
-            setChallengeType(chalType);
-        }
-        if (chalType === "Time") {
-            secondsToMinutes(score);
-        }
-    }, [challenge]);
-
-    function updateTeamResults(e) {
         e.preventDefault();
         let newScore = null;
 
@@ -82,20 +42,14 @@ const EditResultDialog = (props) => {
         }
         const teamListRef = ref(
             db,
-            "Challenges/" +
-                challenge.replace(/ /g, "_") +
-                "/" +
-                teamType +
-                "/" +
-                teamId +
-                "/"
+            "Challenges/" + challenge + "/" + type + "/"
         );
-
-        set(teamListRef, {
+        const newTeamRef = push(teamListRef);
+        set(newTeamRef, {
             team: team,
             score: Number(newScore),
-            date,
-            notes,
+            notes: notes,
+            date: Date.now(),
         });
         props.onClose();
     }
@@ -112,36 +66,77 @@ const EditResultDialog = (props) => {
         setTeam(event.target.value);
     };
 
+    const handleChallengeChange = (event) => {
+        setChallenge(event.target.value.replace(/ /g, "_"));
+    };
+
     const handleTypeChange = (event) => {
         setType(event.target.value);
     };
 
     const handleNotesChange = (event) => {
-        console.log(event.target.value);
+        console.log(event.target.value)
         setNotes(event.target.value);
     };
 
     const minutesToSeconds = (time) => {
         let minutes = time.get("minutes");
         let seconds = time.get("seconds");
+        console.log(minutes * 60 + seconds);
         return Number(minutes) * 60 + Number(seconds);
     };
 
-    const secondsToMinutes = (time) => {
-        let minutes = Math.floor(time / 60);
-        let seconds = time - minutes * 60;
-        if (seconds < 10) {
-            seconds = "0" + seconds;
-        } else if (seconds === 0) {
-            seconds = "00";
-        }
-        setScore(dayjs().minute(minutes).second(Number(seconds)));
+    const createChallengeItems = () => {
+        const challengeRef = ref(db, "Challenges/");
+        let challengeList = [];
+        onValue(challengeRef, (snapshot) => {
+            const challenges = snapshot.val();
+            for (const key in challenges) {
+                challengeList.push([
+                    key.replace(/_/g, " "),
+                    challenges[key]["type"],
+                ]);
+            }
+        });
+
+        return challengeList.map((challenge) => {
+            return (
+                <MenuItem
+                    key={challenge[0]}
+                    data-type={challenge[1]}
+                    value={challenge[0]}
+                    onClick={(e) =>
+                        dispatch({
+                            type: "setNewResultChallengeType",
+                            payload: e.target.dataset.type,
+                        })
+                    }
+                >
+                    {challenge[0]}
+                </MenuItem>
+            );
+        });
     };
 
+    const { open, onClose } = props;
     return (
         <Dialog open={open} PaperProps={{ sx: { width: "23rem" } }}>
-            <DialogTitle>Edit entry </DialogTitle>
-            <form onSubmit={(e) => updateTeamResults(e)}>
+            <DialogTitle>Add new result</DialogTitle>
+            <form onSubmit={(e) => writeTeamResultData(e)}>
+                <FormControlLabel
+                    className='label'
+                    label='Challenge:'
+                    labelPlacement='start'
+                    style={{ paddingBottom: "10px" }}
+                    control={
+                        <Select
+                            sx={{ minWidth: "170px", marginLeft: "25px" }}
+                            onChange={(e) => handleChallengeChange(e)}
+                        >
+                            {createChallengeItems()}
+                        </Select>
+                    }
+                />
                 <FormControlLabel
                     label='Team Type: '
                     labelPlacement='start'
@@ -150,7 +145,6 @@ const EditResultDialog = (props) => {
                         <Select
                             sx={{ minWidth: "101px", marginLeft: "18px" }}
                             onChange={(e) => handleTypeChange(e)}
-                            value={teamType}
                         >
                             <MenuItem value={"Co-ed"}>Co-ed</MenuItem>
                             <MenuItem value={"Female"}>Female</MenuItem>
@@ -163,7 +157,6 @@ const EditResultDialog = (props) => {
                     labelPlacement='start'
                     style={{ paddingBottom: "10px" }}
                     onChange={(e) => handleTeamChange(e)}
-                    value={team}
                     control={
                         <TextField
                             size='small'
@@ -184,8 +177,6 @@ const EditResultDialog = (props) => {
                                     }}
                                     onChange={(e) => handleScoreChange(e)}
                                     views={["minutes", "seconds"]}
-                                    timeSteps={{ minutes: 1, seconds: 1 }}
-                                    value={score}
                                     format='mm:ss'
                                 />
                             </LocalizationProvider>
@@ -194,7 +185,6 @@ const EditResultDialog = (props) => {
                                 size='small'
                                 type='number'
                                 style={{ marginLeft: "54px" }}
-                                value={score}
                             ></TextField>
                         )
                     }
@@ -214,7 +204,6 @@ const EditResultDialog = (props) => {
                                 maxWidth: "175px",
                             }}
                             maxRows={10}
-                            value={notes}
                             onChange={(e) => handleNotesChange(e)}
                         />
                     }
@@ -240,4 +229,4 @@ const EditResultDialog = (props) => {
         </Dialog>
     );
 };
-export default EditResultDialog;
+export default NewResultDialog;

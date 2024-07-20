@@ -8,6 +8,7 @@ export const initialState = {
     loggedIn: false,
     isLoginScreen: false,
     challengeMap: [],
+    darkMode: true,
 };
 
 const reducer = (state = initialState, action) => {
@@ -63,6 +64,11 @@ const reducer = (state = initialState, action) => {
                 ...state,
                 isLoginScreen: action.payload,
             };
+        case "set/darkMode":
+            return {
+                ...state,
+                darkMode: !state.darkMode,
+            }
     }
     return state;
 };

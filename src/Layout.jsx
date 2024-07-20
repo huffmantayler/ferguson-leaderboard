@@ -19,6 +19,8 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getDatabase, ref, remove } from "firebase/database";
 import ArchivedChallengesDialog from "./ArchivedChallengesDialog";
+import LightModeIcon from '@mui/icons-material/LightMode';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
 
 const Layout = ({ children }) => {
     const [resultDialogOpen, setResultDialogOpen] = useState(false);
@@ -33,10 +35,10 @@ const Layout = ({ children }) => {
     const open = Boolean(anchorEl);
     const [accOpen, setAccOpen] = useState(false);
     const currentChallenge = useSelector((state) => state.currentChallenge);
-    const selectedChallenge = useSelector((state) => state.selectedChallenge);
     const db = getDatabase();
     const [archivedChallgedDialogOpen, setArchivedChallengeDialogOpen] =
         useState(false);
+    const darkMode = useSelector((state) => state.darkMode)
 
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -79,11 +81,10 @@ const Layout = ({ children }) => {
         e.preventDefault();
         const challengeRef = ref(
             db,
-            "Challenges/" + selectedChallenge.replace(/ /g, "_") + "/"
+            "Challenges/" + currentChallenge.replace(/ /g, "_") + "/"
         );
         remove(challengeRef);
         setDeleteDialogOpen(false);
-        window.location.reload();
     }
 
     useEffect(() => {
@@ -148,6 +149,12 @@ const Layout = ({ children }) => {
                     </Menu>
                     {!isLoginScreen && <BoardSelector></BoardSelector>}
                     {!isLoginScreen && (
+                        <div style={{mr: 2, marginLeft: "auto"}}>
+                        <IconButton onClick={() =>{
+                            dispatch({type: "set/darkMode"})
+                        }}>
+                       {darkMode ? <LightModeIcon/> : <DarkModeIcon sx={{color: "white"}}/>}
+                        </IconButton>
                         <IconButton
                             size='large'
                             edge='start'
@@ -203,6 +210,7 @@ const Layout = ({ children }) => {
                                 )}
                             </Menu>
                         </IconButton>
+                        </div>
                     )}
                 </Toolbar>
             </AppBar>
@@ -216,7 +224,7 @@ const Layout = ({ children }) => {
             ></NewChallengeDialog>
             <Dialog open={deleteDialogOpen}>
                 <DialogTitle>
-                    Are you sure you want to delete {selectedChallenge}?
+                    Are you sure you want to delete {currentChallenge}?
                 </DialogTitle>
                 <DialogActions>
                     <Button

@@ -17,12 +17,12 @@ const Main = () => {
     const db = getDatabase();
     const dispatch = useDispatch();
 
-    useEffect(() => {});
-
     useEffect(() => {
-        getCurrentChallenges();
+        
         if (selectedChallenge != null) {
             setChallenge(selectedChallenge);
+        } else {
+            getCurrentChallenges();
         }
     }, [selectedChallenge]);
     //selected challenge not updating main correctly
